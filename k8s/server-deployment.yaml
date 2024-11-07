@@ -1,0 +1,40 @@
+# 用于部署后端服务
+
+apiVersion: apps/v1 # 使用 apps/v1 版本的 API，用于定义部署
+kind: Deployment # 资源类型为 Deployment，表示我们要创建的是一个部署资源
+metadata:
+  name: server-deployment # 部署的名称，标识该部署
+spec:
+  replicas: 3 # 期望的 Pod 副本数，将会启动 3 个相同的 Pod，保证应用的高可用性和负载均衡
+  selector:
+    matchLabels:
+      component: server # 用于选择属于该部署的 Pods，匹配 Pods 的标签 component: server
+  template:
+    metadata:
+      labels:
+        component: server # Pod 的标签，必须和 selector 中的 matchLabels 一致，Kubernetes 根据此标签选择要管理的 Pods
+    spec:
+      containers:
+        - name: server # 容器的名称为 server
+          image: ztaer/k8s-multi-server:1.0.0 # 指定要使用的镜像，Kubernetes 会根据这个镜像来运行容器
+          # image: rallycoding/multi-server # 指定要使用的镜像，Kubernetes 会根据这个镜像来运行容器
+          ports:
+            - containerPort: 5000 # 容器内部暴露的端口号为 5000，服务会监听这个端口
+          env:
+            - name: REDIS_HOST # 环境变量名
+              value: redis-cluster-ip-service # 环境变量值，指向 Redis 服务的地址
+            - name: REDIS_PORT # 环境变量名
+              value: "6379" # 环境变量值，指向 Redis 服务的端口
+            - name: PGUSER
+              value: postgres
+            - name: PGHOST
+              value: postgres-cluster-ip-service
+            - name: PGPORT
+              value: "5432"
+            - name: PGDATABASE
+              value: postgres
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pgpassword
+                  key: PGPASSWORD

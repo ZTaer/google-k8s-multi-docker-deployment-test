@@ -1,0 +1,13 @@
+# 配置前端集群基础网络服务
+
+apiVersion: v1 # 定义 API 版本为 v1，用于 Service 资源
+kind: Service # 资源类型为 Service，表示网络服务
+metadata:
+  name: client-cluster-ip-service # 服务的名称为 client-cluster-ip-service
+spec:
+  type: ClusterIP # 服务类型为 ClusterIP，表示该服务只在集群内部可访问
+  selector:
+    component: web # 选择标签为 "component: web" 的 Pods，指定该服务将负责这些 Pods 的流量
+  ports:
+    - port: 3000 # 服务将对外暴露的端口号，集群内部通过这个端口访问服务
+      targetPort: 3000 # 指定服务对应的 Pod 内部的容器端口号，流量将被转发到 Pods 中运行的 3000 端口

@@ -1,0 +1,33 @@
+apiVersion: apps/v1 # 使用 Kubernetes apps/v1 API 版本，用于管理应用部署
+kind: Deployment # 定义资源类型为 Deployment，表示无状态的应用部署
+metadata:
+  name: postgres-deployment # 部署的名称，用于唯一标识该 Deployment
+spec:
+  replicas: 1 # 指定该部署运行一个副本（Pod），可以根据需要进行扩展
+  selector:
+    matchLabels:
+      component: postgres # 匹配 Pods 的标签，选择带有 component: postgres 标签的 Pod
+  template:
+    metadata:
+      labels:
+        component: postgres # 这里定义 Pod 的标签，Pod 将继承此标签，必须与 selector 匹配
+    spec:
+      volumes:
+        - name: postgres-storage # 定义一个名为 database-persistent-storage 的卷
+          persistentVolumeClaim:
+            claimName: database-persistent-volume-claim # 引用之前创建的 PVC
+      containers:
+        - name: postgres # 容器名称，方便标识容器
+          image: postgres # 容器镜像，使用官方 PostgreSQL 镜像
+          ports:
+            - containerPort: 5432 # 暴露 PostgreSQL 的默认端口 5432，用于处理数据库连接请求
+          volumeMounts:
+            - name: postgres-storage # 挂载之前定义的卷
+              mountPath: /var/lib/postgresql/data # 挂载路径，将卷挂载到容器的 /var/lib/postgresql/data 目录
+              subPath: postgres # 指定子路径，将卷挂载到容器的 /var/lib/postgresql/data/postgres 目录
+          env:
+            - name: POSTGRES_PASSWORD # 定义环境变量 POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pgpassword
+                  key: PGPASSWORD

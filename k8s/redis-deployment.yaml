@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+# 定义 API 版本，这里使用 `apps/v1`，这是 Kubernetes 管理部署资源（Deployment）的稳定版本。
+
+kind: Deployment
+# 资源类型为 Deployment，用于管理应用程序的部署和生命周期。
+
+metadata:
+  name: redis-deployment
+  # Deployment 的名称，这里命名为 `redis-deployment`，用于标识这个 Redis 部署。
+
+spec:
+  replicas: 1
+  # 定义副本数量，这里设置为 1，表示将运行一个 Redis 实例。
+
+  selector:
+    matchLabels:
+      component: redis
+      # 选择器定义了 Deployment 选择的 Pod，`matchLabels` 指定了要匹配的标签。
+      # 只有标签 `component: redis` 的 Pod 会被这个 Deployment 管理。
+
+  template:
+    # Pod 模板，定义了要创建的 Pod 的详细配置。
+
+    metadata:
+      labels:
+        component: redis
+        # 为 Pod 设置标签 `component: redis`。
+        # 这些标签用于选择器匹配和服务发现。
+
+    spec:
+      containers:
+        - name: redis
+          # 容器名称为 `redis`，这是在 Pod 中运行的容器名称。
+
+          image: redis
+          # 容器镜像为 `redis`，默认会从 Docker Hub 拉取官方 Redis 镜像。
+
+          ports:
+            - containerPort: 6379
+              # 暴露容器内的 6379 端口，这是 Redis 的默认端口，用于客户端连接。

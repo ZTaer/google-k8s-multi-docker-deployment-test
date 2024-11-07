@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user # 角色绑定的名称
+roleRef:
+  apiGroup: rbac.authorization.k8s.io # 角色 API 组
+  kind: ClusterRole # 角色类型
+  name: cluster-admin # 绑定的角色名称
+subjects:
+  - kind: ServiceAccount # 绑定的主体类型
+    name: admin-user # ServiceAccount 的名称
+    namespace: kubernetes-dashboard # ServiceAccount 所在命名空间

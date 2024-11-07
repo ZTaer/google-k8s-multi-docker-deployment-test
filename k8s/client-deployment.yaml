@@ -1,0 +1,22 @@
+# 用于部署前端服务
+
+apiVersion: apps/v1 # 使用 apps/v1 版本的 API，用于定义部署
+kind: Deployment # 资源类型为 Deployment
+metadata: # 定义资源的元数据，包括名称等。
+  name: client-deployment # 部署的名称
+spec:
+  replicas: 3 # 定义了 3 个副本，将会启动 3 个 Pod
+  selector:
+    matchLabels: # Kubernetes 会根据这些标签来选择管理的 Pod
+      component: web # 用于选择属于该部署的 Pods，匹配的标签是 "component: web"
+  template:
+    metadata:
+      labels: # 定义 Pod 的标签，必须与 selector 中的 matchLabels 匹配
+        component: web # 标签为 "component: web"
+    spec:
+      containers:
+        - name: client # 容器名称
+          image: ztaer/k8s-multi-client:1.0.0 # 使用的容器镜像
+          # image: rallycoding/multi-client # 使用的容器镜像
+          ports:
+            - containerPort: 3000 # 容器内部的 3000 端口会被暴露，用于接收流量

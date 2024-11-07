@@ -1,0 +1,25 @@
+# Worker 后端服务
+
+apiVersion: apps/v1 # 使用 Kubernetes 的 apps/v1 API 版本
+kind: Deployment # 资源类型为 Deployment，表示要创建一个应用部署资源
+metadata:
+  name: worker-deployment # 部署的名称，用于唯一标识该 Deployment
+spec:
+  replicas: 1 # 部署的副本数为 1，表示该应用只会运行一个 Pod
+  selector:
+    matchLabels:
+      component: worker # 选择标签为 "component: worker" 的 Pods，确保服务管理正确的 Pods
+  template:
+    metadata:
+      labels:
+        component: worker # Pod 的标签，必须与 selector 中的标签一致
+    spec:
+      containers:
+        - name: worker # 容器的名称为 worker
+          image: ztaer/k8s-multi-worker:1.0.0 # 使用的 Docker 镜像，Kubernetes 会拉取该镜像并运行容器
+          # image: rallycoding/multi-worker # 使用的 Docker 镜像，Kubernetes 会拉取该镜像并运行容器
+          env: # 环境变量
+            - name: REDIS_HOST
+              value: redis-cluster-ip-service # Redis 服务的地址
+            - name: REDIS_PORT
+              value: "6379" # Redis 服务的端口

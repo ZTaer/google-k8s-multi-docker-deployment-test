@@ -1,0 +1,71 @@
+apiVersion: networking.k8s.io/v1
+# UPDATE API
+# 定义了使用的 API 版本，这里使用的是 `networking.k8s.io/v1`，
+# 是 Kubernetes 中管理网络资源（如 Ingress）的最新版本。
+
+kind: Ingress
+# 指定资源类型为 Ingress。Ingress 资源用于管理外部 HTTP/HTTPS 流量如何路由到集群内的服务。
+
+metadata:
+  name: ingress-service
+  # Ingress 资源的名称，用于标识这个 Ingress 规则集。
+
+  annotations:
+    # REMOVE CLASSNAME ANNOTATION
+    # `nginx.ingress.kubernetes.io/use-regex` 注解启用正则表达式匹配路径。
+    # 这样可以用正则表达式对 URL 路径进行灵活匹配，适用于复杂的 URL 路由规则。
+    nginx.ingress.kubernetes.io/use-regex: "true"
+
+    # ADD ANNOTATION
+    # `nginx.ingress.kubernetes.io/rewrite-target` 注解用于指定路径重写规则。
+    # 这里的 /$1 表示把捕获的正则表达式分组 (.*) 替换为 `/`，从而重写目标路径。
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+
+spec:
+  ingressClassName: nginx
+  # ADD INGRESSCLASSNAME FIELD
+  # 明确指定使用 `nginx` 作为 Ingress 类。
+  # 这意味着流量将通过 NGINX Ingress Controller 进行管理。
+
+  rules:
+    # `rules` 字段定义了 Ingress 的路由规则。
+    # 每个规则可以根据不同的路径或主机名，将流量路由到不同的服务。
+
+    - http:
+        paths:
+          - path: /?(.*)
+            # UPDATE PATH
+            # 匹配根路径 `/` 和其后的所有路径，`/?(.*)` 表示可选的路径部分。
+            # 使用正则表达式匹配路径，因为上面启用了 `use-regex`。
+
+            pathType: ImplementationSpecific
+            # ADD PATHTYPE
+            # 指定路径类型为 `ImplementationSpecific`，让 Ingress Controller 自行决定如何处理路径匹配。
+
+            backend:
+              service:
+                name: client-cluster-ip-service
+                # UPDATE SERVICE FIELDS
+                # 这里指定的后端服务名称为 `client-cluster-ip-service`，它将接收匹配根路径的流量。
+
+                port:
+                  number: 3000
+                  # 指定服务的端口号，流量将通过这个端口被路由到相应的服务。
+
+          - path: /api/?(.*)
+            # UPDATE PATH
+            # 匹配 `/api` 开头的所有路径，正则表达式 `/api/?(.*)` 表示 `/api` 和其后的所有路径。
+
+            pathType: ImplementationSpecific
+            # ADD PATHTYPE
+            # 同样使用 `ImplementationSpecific`，交由 Ingress Controller 自行决定路径匹配。
+
+            backend:
+              service:
+                name: server-cluster-ip-service
+                # UPDATE SERVICE FIELDS
+                # 匹配 `/api` 路径的流量将被转发到 `server-cluster-ip-service`。
+
+                port:
+                  number: 5000
+                  # 指定 `server-cluster-ip-service` 服务的端口号为 5000。

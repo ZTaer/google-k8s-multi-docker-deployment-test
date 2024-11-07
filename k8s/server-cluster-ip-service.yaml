@@ -1,0 +1,13 @@
+# 配置后端集群基础网络服务
+
+apiVersion: v1 # 使用 v1 版本的 API，用于定义 Kubernetes 服务（Service）
+kind: Service # 资源类型为 Service，表示我们要创建的是一个服务资源
+metadata:
+  name: server-cluster-ip-service # 服务的名称，用于唯一标识这个 Service
+spec:
+  type: ClusterIP # 服务的类型为 ClusterIP，表示这个服务只能在集群内部访问
+  selector:
+    component: server # 选择标签为 component: server 的 Pods，服务将把流量发送到匹配此标签的 Pods
+  ports:
+    - port: 5000 # 定义服务暴露的端口号，集群内其他 Pods 或服务可以通过这个端口访问服务
+      targetPort: 5000 # 定义流量将被转发到容器内监听的端口，即 Pod 内部容器的 5000 端口
