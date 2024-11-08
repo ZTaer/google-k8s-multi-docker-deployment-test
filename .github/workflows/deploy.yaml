@@ -1,0 +1,75 @@
+name: Deploy Multi K8S # GitHub Actions 的工作名称
+
+on:
+  push:
+    branches:
+      - main # 当 main 分支有代码推送时触发
+
+env:
+  SHA: $( git rev-parse HEAD ) # 获取当前 Git 提交的 SHA 值
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # 使用 Ubuntu 系统作为运行环境
+    steps:
+      - uses: actions/checkout@v3 # 使用 actions/checkout 动作，检出代码
+
+      # 1. 项目测试验证步骤
+      #   a) 登录 Docker Hub: 使用GitHub Secrets中存储的用户名和密码
+      #   b) 构建 Docker 镜像: 构建用于测试的client镜像
+      #   c) 运行测试: 在构建的镜像中运行测试，CI=true用于持续集成模式
+      - name: Test
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -t ztaer/k8s-multi-client -f ./client/Dockerfile ./client
+          docker run -e CI=true ztaer/k8s-multi-client npm test
+
+      # 2. 配置Service Account密钥
+      #   a) 使用服务账号密钥，授权访问Google Kubernetes Engine（GKE）
+      - name: Set Service Key
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: "${{ secrets.GKE_SA_KEY }}"
+
+      # 3. 使用Google Cloud SDK，设置项目id
+      - name: Set Project
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: k8s-multi-docker-441102 # 项目ID
+
+      # 4. 使用gcloud命令行工具，授权Docker访问Google Cloud
+      - name: Auth
+        run: |-
+          gcloud --quiet auth configure-docker
+
+      # 5. 配置凭证相关
+      - name: Get Credentials
+        uses: google-github-actions/get-gke-credentials@v0
+        with:
+          cluster_name: multi-cluster # GKE集群名称
+          location: asia-east2-a # GKE集群所在地区
+
+      # 6. 构建client、server、worker的Docker镜像，分别打上latest和当前提交SHA的标签
+      - name: Build
+        run: |-
+          docker build -t ztaer/multi-client-k8s-gh:latest -t ztaer/multi-client-k8s-gh:${{ env.SHA }} -f ./client/Dockerfile ./client
+          docker build -t ztaer/multi-server-k8s-gh:latest -t ztaer/multi-server-k8s-gh:${{ env.SHA }} -f ./server/Dockerfile ./server
+          docker build -t ztaer/multi-worker-k8s-gh:latest -t ztaer/multi-worker-k8s-gh:${{ env.SHA }} -f ./worker/Dockerfile ./worker
+
+      # 7. 推送带有latest标签和SHA标签的client、server、worker镜像到Docker Hub
+      - name: Push
+        run: |-
+          docker push ztaer/multi-client-k8s-gh:latest
+          docker push ztaer/multi-server-k8s-gh:latest
+          docker push ztaer/multi-worker-k8s-gh:latest
+
+          docker push ztaer/multi-client-k8s-gh:${{ env.SHA }}
+          docker push ztaer/multi-server-k8s-gh:${{ env.SHA }}
+          docker push ztaer/multi-worker-k8s-gh:${{ env.SHA }}
+
+      # 8. 更新Kubernetes的部署，使其使用新构建的镜像（基于SHA标签）      
+        run: |-
+          kubectl apply -f k8s
+          kubectl set image deployments/server-deployment server=ztaer/multi-server-k8s-gh:${{ env.SHA }}
+          kubectl set image deployments/client-deployment client=ztaer/multi-client-k8s-gh:${{ env.SHA }}
+          kubectl set image deployments/worker-deployment worker=ztaer/multi-worker-k8s-gh:${{ env.SHA }}
