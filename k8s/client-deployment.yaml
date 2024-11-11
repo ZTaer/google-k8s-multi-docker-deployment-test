@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: client # 容器名称
-          image: ztaer/k8s-multi-client:1.0.0 # 使用的容器镜像
+          image: ztaer/multi-client-k8s-gh # 使用的容器镜像
           # image: rallycoding/multi-client # 使用的容器镜像
           ports:
             - containerPort: 3000 # 容器内部的 3000 端口会被暴露，用于接收流量

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: worker # 容器的名称为 worker
-          image: ztaer/k8s-multi-worker:1.0.0 # 使用的 Docker 镜像，Kubernetes 会拉取该镜像并运行容器
+          image: ztaer/multi-worker-k8s-gh # 使用的 Docker 镜像，Kubernetes 会拉取该镜像并运行容器
           # image: rallycoding/multi-worker # 使用的 Docker 镜像，Kubernetes 会拉取该镜像并运行容器
           env: # 环境变量
             - name: REDIS_HOST

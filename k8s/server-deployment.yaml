@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: server # 容器的名称为 server
-          image: ztaer/k8s-multi-server:1.0.0 # 指定要使用的镜像，Kubernetes 会根据这个镜像来运行容器
+          image: ztaer/multi-server-k8s-gh # 指定要使用的镜像，Kubernetes 会根据这个镜像来运行容器
           # image: rallycoding/multi-server # 指定要使用的镜像，Kubernetes 会根据这个镜像来运行容器
           ports:
             - containerPort: 5000 # 容器内部暴露的端口号为 5000，服务会监听这个端口
