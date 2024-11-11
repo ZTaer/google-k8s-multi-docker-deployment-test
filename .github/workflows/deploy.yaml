@@ -67,9 +67,10 @@ jobs:
           docker push ztaer/multi-server-k8s-gh:${{ env.SHA }}
           docker push ztaer/multi-worker-k8s-gh:${{ env.SHA }}
 
-      # 8. 更新Kubernetes的部署，使其使用新构建的镜像（基于SHA标签）      
+      # 8. 更新Kubernetes的部署，使其使用新构建的镜像（基于SHA标签）
+      - name: Apply
         run: |-
           kubectl apply -f k8s
-          kubectl set image deployments/server-deployment server=ztaer/multi-server-k8s-gh:${{ env.SHA }}
           kubectl set image deployments/client-deployment client=ztaer/multi-client-k8s-gh:${{ env.SHA }}
+          kubectl set image deployments/server-deployment server=ztaer/multi-server-k8s-gh:${{ env.SHA }}
           kubectl set image deployments/worker-deployment worker=ztaer/multi-worker-k8s-gh:${{ env.SHA }}
