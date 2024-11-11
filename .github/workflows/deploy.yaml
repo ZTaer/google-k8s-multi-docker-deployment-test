@@ -14,38 +14,32 @@ jobs:
     steps:
       - uses: actions/checkout@v3 # 使用 actions/checkout 动作，检出代码
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }} # 从 GitHub Secrets 中获取 Docker 用户名
-          password: ${{ secrets.DOCKER_PASSWORD }} # 从 GitHub Secrets 中获取 Docker 密码
-
-      # 1. 项目测试验证步骤
+      # 1. Docker登录
       #   a) 登录 Docker Hub: 使用GitHub Secrets中存储的用户名和密码
-      #   b) 构建 Docker 镜像: 构建用于测试的client镜像
-      #   c) 运行测试: 在构建的镜像中运行测试，CI=true用于持续集成模式
+      - name: Docker Login
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      # 2. 项目测试验证步骤
+      #   a) 构建 Docker 镜像: 构建用于测试的client镜像
+      #   b) 运行测试: 在构建的镜像中运行测试，CI=true用于持续集成模式
       - name: Test
         run: |
           docker build -t ztaer/k8s-multi-client -f ./client/Dockerfile.dev ./client
           docker run -e CI=true ztaer/k8s-multi-client npm test
 
-      # 2. 配置Service Account密钥
+      # 3. 配置Service Account密钥
       #   a) 使用服务账号密钥，授权访问Google Kubernetes Engine（GKE）
       - name: Set Service Key
         uses: "google-github-actions/auth@v1"
         with:
           credentials_json: "${{ secrets.GKE_SA_KEY }}"
 
-      # 3. 使用Google Cloud SDK，设置项目id
+      # 4. 使用Google Cloud SDK，设置项目id
       - name: Set Project
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: k8s-multi-docker-441102 # 项目ID
-
-      # 4. 使用gcloud命令行工具，授权Docker访问Google Cloud
-      - name: Auth
-        run: |-
-          gcloud --quiet auth configure-docker
+          export_default_credentials: true # 导出默认凭证供后续kubectl使用
 
       # 5. 配置凭证相关
       - name: Get Credentials
@@ -54,9 +48,6 @@ jobs:
           cluster_name: multi-cluster # GKE集群名称
           location: asia-east2-a # GKE集群所在地区
           project_id: k8s-multi-docker-441102 # 项目ID
-
-      - name: Docker Login
-        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
       # 6. 构建client、server、worker的Docker镜像，分别打上latest和当前提交SHA的标签
       - name: Build
