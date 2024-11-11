@@ -29,5 +29,5 @@ spec:
             - name: POSTGRES_PASSWORD # 定义环境变量 POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: pgpassword
-                  key: PGPASSWORD
+                  name: pgpassword # 对应k8s的Secret资源名称
+                  key: PGPASSWORD # 对应Secret资源中的key
