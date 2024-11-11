@@ -21,7 +21,7 @@ jobs:
       - name: Test
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ztaer/k8s-multi-client -f ./client/Dockerfile ./client
+          docker build -t ztaer/k8s-multi-client -f ./client/Dockerfile.dev ./client
           docker run -e CI=true ztaer/k8s-multi-client npm test
 
       # 2. 配置Service Account密钥
