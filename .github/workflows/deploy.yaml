@@ -38,16 +38,16 @@ jobs:
       - name: Set Project
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: k8s-multi-docker-441102 # 项目ID
+          project_id: ${{ vars.GOOGLE_K8S_PROJECT_ID }} # 项目ID
           export_default_credentials: true # 导出默认凭证供后续kubectl使用
 
       # 5. 配置凭证相关
       - name: Get Credentials
         uses: google-github-actions/get-gke-credentials@v1
         with:
-          cluster_name: multi-cluster # GKE集群名称
-          location: asia-east2-a # GKE集群所在地区
-          project_id: k8s-multi-docker-441102 # 项目ID
+          cluster_name: ${{ vars.GOOGLE_K8S_CLUSTER_NAME }} # GKE集群名称
+          location: ${{ vars.GOOGLE_K8S_LOCATION }} # GKE集群所在地区
+          project_id: ${{ vars.GOOGLE_K8S_PROJECT_ID }} # 项目ID
 
       # 6. 构建client、server、worker的Docker镜像，分别打上latest和当前提交SHA的标签
       - name: Build
