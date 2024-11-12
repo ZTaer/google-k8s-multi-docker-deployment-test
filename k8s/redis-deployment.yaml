@@ -1,3 +1,5 @@
+# 创建 Redis Deployment 的部署配置文件
+
 apiVersion: apps/v1
 # 定义 API 版本，这里使用 `apps/v1`，这是 Kubernetes 管理部署资源（Deployment）的稳定版本。
 

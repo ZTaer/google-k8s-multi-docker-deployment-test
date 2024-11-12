@@ -1,3 +1,5 @@
+# 创建一个 Deployment 资源，用于部署 PostgreSQL 数据库
+
 apiVersion: apps/v1 # 使用 Kubernetes apps/v1 API 版本，用于管理应用部署
 kind: Deployment # 定义资源类型为 Deployment，表示无状态的应用部署
 metadata:

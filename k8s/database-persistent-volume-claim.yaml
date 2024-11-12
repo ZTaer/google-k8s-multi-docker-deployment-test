@@ -1,3 +1,5 @@
+# 数据库应用的持久化存储声明
+
 apiVersion: v1 # 使用 Kubernetes v1 API 版本
 kind: PersistentVolumeClaim # 定义资源类型为 PersistentVolumeClaim (PVC)
 metadata:
