@@ -1,3 +1,4 @@
+# 您在 Kubernetes 中定义 Issuer（指定证书来源与验证方式）
 # 定义资源的 API 版本，这里使用的是 cert-manager 的 v1 版本
 apiVersion: cert-manager.io/v1
 # 声明资源的类型，这里是 ClusterIssuer，表示集群范围内的证书颁发者

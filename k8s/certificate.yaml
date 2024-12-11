@@ -1,3 +1,4 @@
+# 您在命名空间中创建 Certificate（指定域名以及对应的 Issuer，以及存放证书的 Secret）
 # 定义资源的 API 版本，这里使用的是 cert-manager 的 v1 版本
 apiVersion: cert-manager.io/v1
 # 声明资源的类型，这里是 Certificate，表示定义一个证书对象
