@@ -1,0 +1,24 @@
+# 定义资源的 API 版本，这里使用的是 cert-manager 的 v1 版本
+apiVersion: cert-manager.io/v1
+# 声明资源的类型，这里是 Certificate，表示定义一个证书对象
+kind: Certificate
+# 元数据部分，用于定义资源的名称等标识信息
+metadata:
+  # 证书的名称，用于 Kubernetes 中识别该资源
+  name: ztaer-com-tls
+# 具体的 spec 配置，定义证书的属性和请求方式
+spec:
+  # 定义存储生成证书的 Secret 名称，Kubernetes 会将证书存储为一个 Secret
+  secretName: ztaer-com
+  # 引用证书颁发者的名称和类型，这里指向之前定义的 ClusterIssuer
+  issuerRef:
+    # 颁发者的名称，需与之前的 ClusterIssuer 名称一致
+    name: letsencrypt-prod
+    # 颁发者的类型，这里指定为 ClusterIssuer
+    kind: ClusterIssuer
+  # 证书的主域名，通常是证书绑定的主域名
+  commonName: ztaer.com
+  # 证书的 DNS 名称列表，包含主域名和其他需要绑定的子域名
+  dnsNames:
+    - ztaer.com # 主域名
+    - www.ztaer.com # 子域名

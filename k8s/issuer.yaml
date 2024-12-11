@@ -1,0 +1,26 @@
+# 定义资源的 API 版本，这里使用的是 cert-manager 的 v1 版本
+apiVersion: cert-manager.io/v1
+# 声明资源的类型，这里是 ClusterIssuer，表示集群范围内的证书颁发者
+kind: ClusterIssuer
+# 元数据部分，用于定义资源的名称等标识信息
+metadata:
+  # 颁发者的名称，这里命名为 letsencrypt-prod，用于生产环境
+  name: letsencrypt-prod
+# 具体的 spec 配置，定义颁发者的行为和配置
+spec:
+  # 使用 ACME 协议（Automatic Certificate Management Environment）
+  acme:
+    # Let's Encrypt 的 ACME API 地址，用于申请和管理证书
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # 用于申请证书的邮箱地址，Let's Encrypt 会发送到期提醒邮件
+    email: "ztaerkiller@gmail.com"
+    # 用于存储 ACME 注册时生成的私钥的 Kubernetes Secret 名称
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    # 定义挑战的解决方式
+    solvers:
+      - http01:
+          # 使用 HTTP-01 挑战方式
+          ingress:
+            # 定义使用的 Ingress Class，这里指定为 nginx
+            class: nginx
